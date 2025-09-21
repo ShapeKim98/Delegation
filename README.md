@@ -89,7 +89,6 @@ The snippet below demonstrates chaining in SwiftUI.
 import SwiftUI
 import Delegation
 
-@available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
 struct ContentView: View {
     @Delegatable private var pushListView: (() -> Void)?
     @Delegatable private var buttonClicked: (() -> Void)?
