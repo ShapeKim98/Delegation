@@ -1,26 +1,33 @@
 # Delegation
 
-한국어 | English
+[![Swift Version](https://img.shields.io/endpoint?url=https://swiftpackageindex.com/api/packages/ShapeKim98/Delegation/badge?type=swift-versions)](https://swiftpackageindex.com/ShapeKim98/Delegation)
+[![Platform Support](https://img.shields.io/endpoint?url=https://swiftpackageindex.com/api/packages/ShapeKim98/Delegation/badge?type=platforms)](https://swiftpackageindex.com/ShapeKim98/Delegation)
 
-`@Delegatable` 매크로는 델리게이트 클로저를 저장하는 프로퍼티에 빌더 스타일의 체이닝 메서드를 추가해 SwiftUI 및 UIKit 구성 요소에서 호출 클로저를 간단히 주입할 수 있게 해 줍니다.
-`@Delegatable` generates builder-style methods for closure-backed delegate properties so SwiftUI/UIKit components can adopt chained delegate configuration with minimal boilerplate.
+Delegation은 델리게이트 클로저를 체이닝 방식으로 구성할 수 있게 해 주는 Swift 매크로 패키지입니다.
+Delegation is a Swift macro package that unlocks builder-style configuration for closure-based delegates in SwiftUI and UIKit.
+
+## 주요 기능 (Features)
+
+- `@Delegatable` 애트리뷰트 하나로 체이닝 가능한 빌더 메서드 자동 생성
+- `async`, `throws`, 다중 파라미터, `@Sendable` 등 클로저 특성 그대로 유지
+- 시스템 기본 언어에 맞춰 한국어/영어 진단 메시지 자동 출력
 
 ## 설치 (Installation)
 
-- Swift Package Manager만 지원합니다.  
-  Add only via Swift Package Manager.
+- Swift Package Manager만 지원하며 Swift 5.9(Xcode 15.0) 이상이 필요합니다.  
+  Swift Package Manager only, requiring Swift 5.9 (Xcode 15.0) or newer.
 - `Package.swift`의 `dependencies`와 `targets` 섹션에 아래와 같이 추가하세요.  
   Add the package to the `dependencies` and `targets` sections as shown below.
 
 ```swift
-// swift-tools-version: 6.2
+// swift-tools-version: 5.9
 import PackageDescription
 
 let package = Package(
     name: "YourApp",
     platforms: [.iOS(.v14), .macOS(.v11), .tvOS(.v14), .watchOS(.v7), .macCatalyst(.v13)],
     dependencies: [
-        .package(url: "https://github.com/ShapeKim98/Delegation.git", from: "0.1.0")
+        .package(url: "https://github.com/ShapeKim98/Delegation.git", from: "0.2.0")
     ],
     targets: [
         .target(
@@ -33,8 +40,8 @@ let package = Package(
 )
 ```
 
-> 현재 최신 태그는 `0.1.0`이며 릴리스에 맞춰 갱신해 주세요.  
-> The current release tag is `0.1.0`; bump it as you publish newer versions.
+> 현재 최신 태그는 `0.2.0`이며 릴리스에 맞춰 갱신해 주세요.  
+> The current release tag is `0.2.0`; bump it as you publish newer versions.
 
 ## 사용 방법 (Usage)
 
@@ -128,12 +135,56 @@ ContentView()
 - 패키지는 별도 실행 타깃을 포함하지 않으며, 위 코드는 문서용 예시입니다.  
   The package ships without an executable sample target; the snippet above is for documentation only.
 
+## UIKit 예제 (UIKit Example)
+
+UIKit 환경에서도 동일하게 체이닝된 델리게이트 구성을 적용할 수 있습니다.  
+The same chaining pattern works in UIKit-based view controllers.
+
+```swift
+import UIKit
+import Delegation
+
+final class ListViewController: UIViewController {
+    @Delegatable var showDetail: ((String) -> Void)?
+    @Delegatable var presentSettings: (() -> Void)?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        view.backgroundColor = .systemBackground
+
+        let button = UIButton(type: .system)
+        button.setTitle("설정 열기", for: .normal)
+        button.addAction(UIAction { [weak self] _ in
+            self?.presentSettings?()
+        }, for: .touchUpInside)
+
+        view.addSubview(button)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            button.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            button.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let identifier = "item-\(indexPath.row)"
+        showDetail?(identifier)
+    }
+}
+
+let controller = ListViewController()
+    .showDetail { id in print("detail: \(id)") }
+    .presentSettings { print("settings") }
+```
+
+- 샘플 코드는 문서용 예시이며, 실제 앱 구조에 맞춰 델리게이트 채택과 레이아웃을 조정하세요.  
+  The snippet is documentation-only; adapt delegate conformance and layout to your project needs.
+
 ## 플랫폼 요구 사항 (Platform Requirements)
 
-- `Package.swift`는 Swift 6.2 매니페스트 형식을 사용하며 최소 지원 플랫폼은 `iOS 13 / macOS 10.15 / tvOS 13 / watchOS 6 / macCatalyst 13` 이상입니다.  
-  The manifest targets Swift tools 6.2 with minimum deployment targets of iOS 13, macOS 10.15, tvOS 13, watchOS 6, and macCatalyst 13.
-- SwiftUI 예시는 런타임에서 `@available` 속성을 통해 iOS 14, macOS 11, tvOS 14, watchOS 7 이상에서만 활성화됩니다.  
-  The SwiftUI demo activates on iOS 14, macOS 11, tvOS 14, watchOS 7 and newer via availability annotations.
+- `Package.swift`는 Swift 5.9 매니페스트 형식을 사용하며 최소 지원 플랫폼은 `iOS 13 / macOS 10.15 / tvOS 13 / watchOS 6 / macCatalyst 13` 이상입니다.  
+  The manifest targets Swift tools 5.9 with minimum deployment targets of iOS 13, macOS 10.15, tvOS 13, watchOS 6, and macCatalyst 13.
 
 ## 라이선스 (License)
 
