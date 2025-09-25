@@ -174,14 +174,24 @@ public struct ControllableMacro: PeerMacro {
         }
 
         let callPrefix = ControllableMacroSupport.callPrefix(for: functionDecl.signature)
-        let copyKeyword = ControllableMacroSupport.requiresMutableCopy(functionDecl.modifiers) ? "var" : "let"
         let arguments = ControllableMacroSupport.argumentList(from: functionDecl.signature.parameterClause)
-        let invocation = arguments.isEmpty ? "controllable.\(identifier)()" : "controllable.\(identifier)(\(arguments))"
-        let bodyLines = [
-            "    \(copyKeyword) controllable = self",
-            "    let _: Void = \(callPrefix)\(invocation)",
-            "    return controllable"
-        ]
+        let isReferenceType = MacroSupport.isReferenceTypeContext(for: functionDecl)
+        let requiresCopy = ControllableMacroSupport.requiresMutableCopy(functionDecl.modifiers) && !isReferenceType
+
+        let invocationTarget = requiresCopy ? "controllable" : "self"
+        let invocation = arguments.isEmpty
+            ? "\(invocationTarget).\(identifier)()"
+            : "\(invocationTarget).\(identifier)(\(arguments))"
+
+        var bodyLines: [String] = []
+        if requiresCopy {
+            bodyLines.append("    var controllable = self")
+            bodyLines.append("    let _: Void = \(callPrefix)\(invocation)")
+            bodyLines.append("    return controllable")
+        } else {
+            bodyLines.append("    let _: Void = \(callPrefix)\(invocation)")
+            bodyLines.append("    return self")
+        }
 
         var lines: [String] = []
         if !attributesText.isEmpty {

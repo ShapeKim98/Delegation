@@ -21,6 +21,24 @@ enum MacroSupport {
         accessModifier(from: enclosingDeclModifierList(for: declaration))
     }
 
+    static func isReferenceTypeContext(for declaration: some SyntaxProtocol) -> Bool {
+        var currentParent = Syntax(declaration).parent
+
+        while let parent = currentParent {
+            if parent.is(ClassDeclSyntax.self) || parent.is(ActorDeclSyntax.self) {
+                return true
+            }
+
+            if parent.is(StructDeclSyntax.self) || parent.is(EnumDeclSyntax.self) {
+                return false
+            }
+
+            currentParent = parent.parent
+        }
+
+        return false
+    }
+
     static func isAccessModifier(_ modifier: DeclModifierSyntax) -> Bool {
         switch modifier.name.tokenKind {
         case .keyword(.public),

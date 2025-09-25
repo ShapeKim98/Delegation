@@ -83,13 +83,27 @@ public struct DelegatableMacro: PeerMacro {
         let accessModifier = MacroSupport.enclosingAccessModifier(for: varDecl)
         let accessModifierText = accessModifier.map { "\($0.text) " } ?? ""
 
-        let functionDecl: DeclSyntax = """
-            \(raw: accessModifierText)func \(raw: propertyName)(_ perform: @escaping \(raw: parameterTypeDescription)) -> Self {
-                var delegator = self
-                delegator.\(raw: propertyName) = perform
-                return delegator
-            }
-            """
+        let isReferenceType = MacroSupport.isReferenceTypeContext(for: varDecl)
+        let functionDecl: DeclSyntax
+
+        if isReferenceType {
+            functionDecl = """
+                @discardableResult
+                \(raw: accessModifierText)func \(raw: propertyName)(_ perform: @escaping \(raw: parameterTypeDescription)) -> Self {
+                    self.\(raw: propertyName) = perform
+                    return self
+                }
+                """
+        } else {
+            functionDecl = """
+                @discardableResult
+                \(raw: accessModifierText)func \(raw: propertyName)(_ perform: @escaping \(raw: parameterTypeDescription)) -> Self {
+                    var delegator = self
+                    delegator.\(raw: propertyName) = perform
+                    return delegator
+                }
+                """
+        }
 
         return [functionDecl]
     }
