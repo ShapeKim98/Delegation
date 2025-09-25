@@ -113,6 +113,6 @@ public struct DelegatableMacro: PeerMacro {
 struct DelegationPlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
         DelegatableMacro.self,
-        ControllableMacro.self,
+        CallableMacro.self,
     ]
 }

@@ -35,7 +35,7 @@ struct ContentView: View {
 
     var currentNumber: Int { _number.wrappedValue }
 
-    @Controllable
+    @Callable
     private mutating func changeNumber(_ number: Int) {
         _number = State(initialValue: number)
     }
@@ -67,7 +67,7 @@ print("SwiftUI 뷰 상태 숫자: \(contentView.currentNumber)")
 final class NumberController {
     var number = 0
 
-    @Controllable
+    @Callable
     private func changeNumber(_ number: Int) {
         self.number = number
     }

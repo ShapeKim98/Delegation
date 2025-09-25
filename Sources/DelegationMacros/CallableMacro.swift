@@ -3,7 +3,7 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
-enum ControllableMacroSupport {
+enum CallableMacroSupport {
     static func attributeBaseName(from attribute: AttributeSyntax) -> String {
         let description = attribute.attributeName.trimmedDescription
         if let lastComponent = description.split(separator: ".").last {
@@ -68,7 +68,7 @@ enum ControllableMacroSupport {
     }
 }
 
-public struct ControllableMacro: PeerMacro {
+public struct CallableMacro: PeerMacro {
     public static func expansion(
         of attribute: AttributeSyntax,
         providingPeersOf declaration: some DeclSyntaxProtocol,
@@ -77,8 +77,8 @@ public struct ControllableMacro: PeerMacro {
         guard let functionDecl = declaration.as(FunctionDeclSyntax.self) else {
             throw DelegationMacroError.message(
                 MacroSupport.localizedMessage(
-                    korean: "@Controllable는 함수 선언에만 사용할 수 있습니다.",
-                    english: "Apply @Controllable to functions only."
+                    korean: "@Callable는 함수 선언에만 사용할 수 있습니다.",
+                    english: "Apply @Callable to functions only."
                 )
             )
         }
@@ -86,8 +86,8 @@ public struct ControllableMacro: PeerMacro {
         guard functionDecl.body != nil else {
             throw DelegationMacroError.message(
                 MacroSupport.localizedMessage(
-                    korean: "@Controllable 메서드는 본문을 포함해야 합니다.",
-                    english: "@Controllable functions must provide a body."
+                    korean: "@Callable 메서드는 본문을 포함해야 합니다.",
+                    english: "@Callable functions must provide a body."
                 )
             )
         }
@@ -97,8 +97,8 @@ public struct ControllableMacro: PeerMacro {
             if returnType != "Void" && returnType != "()" {
                 throw DelegationMacroError.message(
                     MacroSupport.localizedMessage(
-                        korean: "@Controllable는 반환 타입이 없는 함수에서만 사용할 수 있습니다.",
-                        english: "Use @Controllable only on functions without a return type."
+                        korean: "@Callable는 반환 타입이 없는 함수에서만 사용할 수 있습니다.",
+                        english: "Use @Callable only on functions without a return type."
                     )
                 )
             }
@@ -117,8 +117,8 @@ public struct ControllableMacro: PeerMacro {
                 continue
             }
 
-            let name = ControllableMacroSupport.attributeBaseName(from: attribute)
-            if name.caseInsensitiveCompare("Controllable") == .orderedSame {
+            let name = CallableMacroSupport.attributeBaseName(from: attribute)
+            if name.caseInsensitiveCompare("Callable") == .orderedSame {
                 continue
             }
 
@@ -146,7 +146,7 @@ public struct ControllableMacro: PeerMacro {
 
         let modifiers = functionDecl.modifiers
         for modifier in modifiers where MacroSupport.shouldCopyToBuilder(modifier) {
-            let text = ControllableMacroSupport.modifierDescription(modifier)
+            let text = CallableMacroSupport.modifierDescription(modifier)
             if !text.isEmpty {
                 modifierComponents.append(text)
             }
@@ -173,21 +173,21 @@ public struct ControllableMacro: PeerMacro {
             }
         }
 
-        let callPrefix = ControllableMacroSupport.callPrefix(for: functionDecl.signature)
-        let arguments = ControllableMacroSupport.argumentList(from: functionDecl.signature.parameterClause)
+        let callPrefix = CallableMacroSupport.callPrefix(for: functionDecl.signature)
+        let arguments = CallableMacroSupport.argumentList(from: functionDecl.signature.parameterClause)
         let isReferenceType = MacroSupport.isReferenceTypeContext(for: functionDecl)
-        let requiresCopy = ControllableMacroSupport.requiresMutableCopy(functionDecl.modifiers) && !isReferenceType
+        let requiresCopy = CallableMacroSupport.requiresMutableCopy(functionDecl.modifiers) && !isReferenceType
 
-        let invocationTarget = requiresCopy ? "controllable" : "self"
+        let invocationTarget = requiresCopy ? "callable" : "self"
         let invocation = arguments.isEmpty
             ? "\(invocationTarget).\(identifier)()"
             : "\(invocationTarget).\(identifier)(\(arguments))"
 
         var bodyLines: [String] = []
         if requiresCopy {
-            bodyLines.append("    var controllable = self")
+            bodyLines.append("    var callable = self")
             bodyLines.append("    let _: Void = \(callPrefix)\(invocation)")
-            bodyLines.append("    return controllable")
+            bodyLines.append("    return callable")
         } else {
             bodyLines.append("    let _: Void = \(callPrefix)\(invocation)")
             bodyLines.append("    return self")

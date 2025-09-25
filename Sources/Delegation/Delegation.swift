@@ -30,10 +30,10 @@
 @attached(peer, names: arbitrary)
 public macro Delegatable() = #externalMacro(module: "DelegationMacros", type: "DelegatableMacro")
 
-/// `@Controllable`를 void 메서드에 붙이면 동일한 시그니처로 `Self`를 반환하는 메서드를 생성합니다.
+/// `@Callable`을 void 메서드에 붙이면 동일한 시그니처로 `Self`를 반환하는 메서드를 생성합니다.
 ///
 /// ```swift
-/// @Controllable
+/// @Callable
 /// private func changeNumber(_ number: Int) {
 ///     self.number = number
 /// }
@@ -49,4 +49,4 @@ public macro Delegatable() = #externalMacro(module: "DelegationMacros", type: "D
 /// }
 /// ```
 @attached(peer, names: arbitrary)
-public macro Controllable() = #externalMacro(module: "DelegationMacros", type: "ControllableMacro")
+public macro Callable() = #externalMacro(module: "DelegationMacros", type: "CallableMacro")
