@@ -28,7 +28,7 @@ let package = Package(
     name: "YourApp",
     platforms: [.iOS(.v14), .macOS(.v11), .tvOS(.v14), .watchOS(.v7), .macCatalyst(.v13)],
     dependencies: [
-        .package(url: "https://github.com/ShapeKim98/Delegation.git", from: "0.2.0")
+        .package(url: "https://github.com/ShapeKim98/Delegation.git", from: "0.3.0")
     ],
     targets: [
         .target(
@@ -41,8 +41,8 @@ let package = Package(
 )
 ```
 
-> 현재 최신 태그는 `0.2.0`이며 릴리스에 맞춰 갱신해 주세요.
-> The current release tag is `0.2.0`; bump it as you publish newer versions.
+> 현재 최신 태그는 `0.3.0`이며 릴리스에 맞춰 갱신해 주세요.
+> The current release tag is `0.3.0`; bump it as you publish newer versions.
 
 ## 사용 방법 (Usage)
 
