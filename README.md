@@ -9,7 +9,7 @@ Delegation is a Swift macro package that unlocks builder-style configuration for
 ## 주요 기능 (Features)
 
 - `@Delegatable` 애트리뷰트 하나로 체이닝 가능한 빌더 메서드 자동 생성
-- `@Controllable` 애트리뷰트를 void 메서드에 붙여 체이닝 가능한 `Self` 반환 메서드 생성
+- `@Callable` 애트리뷰트를 void 메서드에 붙여 체이닝 가능한 `Self` 반환 메서드 생성
 - `async`, `throws`, 다중 파라미터, `@Sendable` 등 클로저 특성 그대로 유지
 - 시스템 기본 언어에 맞춰 한국어/영어 진단 메시지 자동 출력
 
@@ -28,7 +28,7 @@ let package = Package(
     name: "YourApp",
     platforms: [.iOS(.v14), .macOS(.v11), .tvOS(.v14), .watchOS(.v7), .macCatalyst(.v13)],
     dependencies: [
-        .package(url: "https://github.com/ShapeKim98/Delegation.git", from: "0.2.0")
+        .package(url: "https://github.com/ShapeKim98/Delegation.git", from: "0.3.0")
     ],
     targets: [
         .target(
@@ -41,8 +41,8 @@ let package = Package(
 )
 ```
 
-> 현재 최신 태그는 `0.2.0`이며 릴리스에 맞춰 갱신해 주세요.
-> The current release tag is `0.2.0`; bump it as you publish newer versions.
+> 현재 최신 태그는 `0.3.0`이며 릴리스에 맞춰 갱신해 주세요.
+> The current release tag is `0.3.0`; bump it as you publish newer versions.
 
 ## 사용 방법 (Usage)
 
@@ -74,14 +74,14 @@ ContentView()
     }
 ```
 
-### @Controllable
+### @Callable
 
 ```swift
 struct NumberController {
     private var number = 0
     var currentNumber: Int { number }
 
-    @Controllable
+    @Callable
     private mutating func changeNumber(_ value: Int) {
         number = value
     }
@@ -93,8 +93,8 @@ let controller = NumberController()
 print(controller.currentNumber) // 10
 ```
 
-- 반환 타입이 없는 메서드에 `@Controllable`을 붙이면 본문을 복사한 뒤 `Self`를 반환하는 빌더 메서드가 추가됩니다. 값 타입은 복사본을, 참조 타입은 원본 인스턴스를 그대로 반환합니다.
-  Annotate void functions with `@Controllable` to synthesise a builder method that mirrors the body and returns `Self`; value types return a copy while reference types return the original instance.
+- 반환 타입이 없는 메서드에 `@Callable`을 붙이면 본문을 복사한 뒤 `Self`를 반환하는 빌더 메서드가 추가됩니다. 값 타입은 복사본을, 참조 타입은 원본 인스턴스를 그대로 반환합니다.
+  Annotate void functions with `@Callable` to synthesise a builder method that mirrors the body and returns `Self`; value types return a copy while reference types return the original instance.
 - `mutating`, `async`, `throws` 등 기존 선언의 효과는 새 메서드에도 유지됩니다.
   Existing modifiers such as `mutating`, `async`, and `throws` propagate to the generated method.
 - SwiftUI `View`처럼 `@State`를 사용하는 값 타입 샘플은 `Sources/DelegationClient/main.swift`에서 확인할 수 있습니다.
@@ -133,7 +133,7 @@ struct ContentView: View {
     @Delegatable private var buttonClicked: (() -> Void)?
     @State private var title = "Hello, world!"
 
-    @Controllable
+    @Callable
     private func changeTitle(_ text: String) {
         title = text
     }
@@ -175,8 +175,8 @@ ContentView()
     .changeTitle("Delegation")
 ```
 
-- `@Controllable`이 생성한 빌더를 통해 SwiftUI 상태(`@State`)를 체이닝으로 갱신할 수 있습니다.
-  Use the builder produced by `@Controllable` to update SwiftUI `@State` via chaining.
+- `@Callable`이 생성한 빌더를 통해 SwiftUI 상태(`@State`)를 체이닝으로 갱신할 수 있습니다.
+  Use the builder produced by `@Callable` to update SwiftUI `@State` via chaining.
 - 패키지는 별도 실행 타깃을 포함하지 않으며, 위 코드는 문서용 예시입니다.
   The package ships without an executable sample target; the snippet above is for documentation only.
 
@@ -194,7 +194,7 @@ final class ListViewController: UIViewController {
     @Delegatable private var presentSettings: (() -> Void)?
     private var titleText = "목록"
 
-    @Controllable
+    @Callable
     private func updateTitle(_ text: String) {
         titleText = text
         title = text
@@ -233,8 +233,8 @@ let controller = ListViewController()
     .updateTitle("목록 화면")
 ```
 
-- 클래스에서도 `@Controllable`이 생성한 체이닝 메서드로 내부 상태를 직접 갱신할 수 있습니다.
-  The `@Controllable` builder lets reference types update their internal state while participating in the chain.
+- 클래스에서도 `@Callable`이 생성한 체이닝 메서드로 내부 상태를 직접 갱신할 수 있습니다.
+  The `@Callable` builder lets reference types update their internal state while participating in the chain.
 - 샘플 코드는 문서용 예시이며, 실제 앱 구조에 맞춰 델리게이트 채택과 레이아웃을 조정하세요.
   The snippet is documentation-only; adapt delegate conformance and layout to your project needs.
 
